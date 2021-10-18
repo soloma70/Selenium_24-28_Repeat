@@ -67,8 +67,4 @@ def test_petfriends(web_browser):
 
     time.sleep(5)  # just for demo purposes, do NOT repeat it on real projects!
 
-    if web_browser.current_url == 'https://petfriends1.herokuapp.com/all_pets':
-        # Сделать скриншот окна браузера:
-        web_browser.save_screenshot('result_petfriends.png')
-    else:
-        raise Exception("login error")
+    assert  web_browser.current_url == 'https://petfriends1.herokuapp.com/all_pets',"login error"
