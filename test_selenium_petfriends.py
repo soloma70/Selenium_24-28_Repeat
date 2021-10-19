@@ -36,7 +36,7 @@ def test_login_pass():
     assert pytest.driver.find_element_by_tag_name('h1').text == "PetFriends", "login error"
 
 
-def test_show_all_petfriends():
+def test_show_all_pets():
     '''Тест проверяет наличие фото у питомца, наличие имени, возраста и породы'''
 
     # Получение массива данных из таблицы всех питомцев
