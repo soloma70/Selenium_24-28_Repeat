@@ -12,7 +12,7 @@ def driver_setup():
     логинится на сайте, после выполнея основного кода закрывает браузер'''
     pytest.driver = webdriver.Chrome('C:/1/chromedriver.exe')
     pytest.driver.set_window_size(1280, 960)
-    pytest.driver.implicitly_wait(10)
+    pytest.driver.implicitly_wait(5)
     # Открываем базовую страницу PetFriends:
     pytest.driver.get("https://petfriends1.herokuapp.com/")
     # Клик на кнопку "Зарегистрироваться"
