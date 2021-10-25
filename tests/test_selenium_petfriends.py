@@ -1,49 +1,20 @@
 # pytest -v --driver Chrome --driver-path C:/1/chromedriver test_selenium_petfriends.py
 
-import pytest
-from selenium import webdriver
-from settings import valid_email, valid_password, valid_name
-import time
+from settings import valid_name
 
 
-@pytest.fixture(autouse=True)
-def driver_setup():
-    '''Фикстура загружает веб-драйвер Хром, меняет размер окна, устанавливает явные, страницу авторизации Pet Friends,
-    логинится на сайте, после выполнея основного кода закрывает браузер'''
-    pytest.driver = webdriver.Chrome('C:/1/chromedriver.exe')
-    pytest.driver.set_window_size(1280, 960)
-    pytest.driver.implicitly_wait(5)
-    # Открываем базовую страницу PetFriends:
-    pytest.driver.get("https://petfriends1.herokuapp.com/")
-    # Клик на кнопку "Зарегистрироваться"
-    pytest.driver.find_element_by_xpath("//button[@onclick=\"document.location='/new_user';\"]").click()
-    # Клик на ссылку "У меня уже есть аккаунт"
-    pytest.driver.find_element_by_link_text(u"У меня уже есть аккаунт").click()
-    # Ввод email
-    pytest.driver.find_element_by_id('email').send_keys(valid_email)
-    # Ввод пароля
-    pytest.driver.find_element_by_id('pass').send_keys(valid_password)
-    # Клик на кнопке "Войти"
-    pytest.driver.find_element_by_css_selector('button[type="submit"]').click()
-    yield
-    pytest.driver.quit()
-
-
-def test_login_pass():
-    '''Тест проверяет загрузку страницы "Все питомцы"'''
-
+def test_login_pass(web_driver):
+    """Тест проверяет загрузку страницы "Все питомцы" """
     # Проверка, что мы на главной странице
-    assert pytest.driver.find_element_by_tag_name('h1').text == "PetFriends", "login error"
+    assert web_driver.find_element_by_tag_name('h1').text == "PetFriends", "login error"
 
 
-def test_show_all_pets():
-    '''Тест проверяет наличие фото у питомца, наличие имени, возраста и породы'''
-
+def test_show_all_pets(web_driver):
+    """Тест проверяет наличие фото у питомца, наличие имени, возраста и породы"""
     # Получение массива данных из таблицы всех питомцев
-    images_all_pets = pytest.driver.find_elements_by_css_selector('.card-deck.card-img-top')
-    names_all_pets = pytest.driver.find_elements_by_css_selector('.card-deck.card-title')
-    descriptions_all_pets = pytest.driver.find_elements_by_css_selector('.card-deck.card-text')
-
+    images_all_pets = web_driver.find_elements_by_css_selector('.card-deck.card-img-top')
+    names_all_pets = web_driver.find_elements_by_css_selector('.card-deck.card-title')
+    descriptions_all_pets = web_driver.find_elements_by_css_selector('.card-deck.card-text')
     # Внутри соответствующего масива есть имя питомца, возраст и вид
     for i in range(len(names_all_pets)):
         # Берём элемент с номером i (картинка для i-й карточки питомца). Каждая картинка имеет атрибут src, если была
@@ -68,22 +39,21 @@ def test_show_all_pets():
         assert len(parts_all_pets[1]) > 0
 
 
-def test_show_my_pets():
-    '''Тест проверяет загрузку страницы "Мои питомцы", наличие имени, возраста и породы; в статистике пользователя и в
+def test_show_my_pets(web_driver):
+    """Тест проверяет загрузку страницы "Мои питомцы", наличие имени, возраста и породы; в статистике пользователя и в
     таблице одинаковае количество питомцев; хотя бы у половины питомцев есть фото; в таблице нет повторяющихся питомцев
-    и повторяющихся имен питомцев'''
-
+    и повторяющихся имен питомцев"""
     # Переход на страницу "Мои питомцы"
-    pytest.driver.find_element_by_xpath("//a[@href='/my_pets']").click()
+    web_driver.find_element_by_xpath("//a[@href='/my_pets']").click()
     # Проверяем, что мы оказались на странице пользователя My Pets
-    assert pytest.driver.find_element_by_tag_name('h2').text == valid_name
+    assert web_driver.find_element_by_tag_name('h2').text == valid_name
     # Получение массива данных из таблицы моих питомцев
-    images_my_pets = pytest.driver.find_elements_by_css_selector('div#all_my_pets table tbody tr th img')
-    names_my_pets = pytest.driver.find_elements_by_css_selector('div#all_my_pets table tbody tr td:nth-of-type(1)')
-    types_my_pets = pytest.driver.find_elements_by_css_selector('div#all_my_pets table tbody tr td:nth-of-type(2)')
-    ages_my_pets = pytest.driver.find_elements_by_css_selector('div#all_my_pets table tbody tr td:nth-of-type(3)')
+    images_my_pets = web_driver.find_elements_by_css_selector('div#all_my_pets table tbody tr th img')
+    names_my_pets = web_driver.find_elements_by_css_selector('div#all_my_pets table tbody tr td:nth-of-type(1)')
+    types_my_pets = web_driver.find_elements_by_css_selector('div#all_my_pets table tbody tr td:nth-of-type(2)')
+    ages_my_pets = web_driver.find_elements_by_css_selector('div#all_my_pets table tbody tr td:nth-of-type(3)')
     # Получение количества питомцев из статистики пользователя
-    count_my_pets = pytest.driver.find_element_by_css_selector('html body div div div').text.split('\n')
+    count_my_pets = web_driver.find_element_by_css_selector('html body div div div').text.split('\n')
     count_my_pets_count = int((count_my_pets[1].split(' '))[1])
     # Объявление списка переменных и присваивание им пустых значений
     count_my_pets_name = 0
@@ -124,9 +94,9 @@ def test_show_my_pets():
     assert len(list_my_pets) == len(unique_list_my_pets), 'ERROR: Есть повторяющиеся питомцы'
 
 
-def test_exit():
-   '''Тест проверяет работу кнопки "Выйти"'''
+def test_exit(web_driver):
+    """Тест проверяет работу кнопки "Выйти" """
 
-   pytest.driver.find_element_by_xpath("//button[@class='btn btn-outline-secondary']").click()
-   assert pytest.driver.find_element_by_xpath("//button[@class='btn btn-success']").text == 'Зарегистрироваться'\
-       , 'ERROR: ошибка Log Out'
+    web_driver.find_element_by_xpath("//button[@class='btn btn-outline-secondary']").click()
+    assert web_driver.find_element_by_xpath("//button[@class='btn btn-success']").text == 'Зарегистрироваться'\
+        , 'ERROR: ошибка Log Out'
